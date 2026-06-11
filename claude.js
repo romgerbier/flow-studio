@@ -1,0 +1,29 @@
+export async function handler(event) {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method not allowed" };
+  }
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) {
+    return { statusCode: 500, body: JSON.stringify({ error: "Missing API key" }) };
+  }
+  try {
+    const { prompt } = JSON.parse(event.body || "{}");
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    const data = await res.json();
+    return { statusCode: 200, body: JSON.stringify(data) };
+  } catch (e) {
+    return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+  }
+}
