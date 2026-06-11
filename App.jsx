@@ -40,11 +40,8 @@ async function callClaude(prompt) {
   const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
-    }),
+    body: JSON.stringify({ prompt }),
+
   });
   const data = await res.json();
   const text = data.content ? data.content.map(b => b.text || "").join("") : "";
